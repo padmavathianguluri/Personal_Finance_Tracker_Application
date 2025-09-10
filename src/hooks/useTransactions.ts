@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Transaction } from '../types';
 import { useLocalStorage } from './useLocalStorage';
+import { useAuth } from '../contexts/AuthContext';
 
 export const useTransactions = () => {
-  const [transactions, setTransactions] = useLocalStorage<Transaction[]>('finance-transactions', []);
+  const { user } = useAuth();
+  const storageKey = user ? `finance-transactions-${user.id}` : 'finance-transactions';
+  const [transactions, setTransactions] = useLocalStorage<Transaction[]>(storageKey, []);
   const [loading, setLoading] = useState(false);
 
   const addTransaction = async (transactionData: Omit<Transaction, 'id' | 'createdAt'>) => {

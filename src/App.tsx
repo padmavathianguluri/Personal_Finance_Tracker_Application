@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AuthPage } from './components/Auth/AuthPage';
+import { LoadingSpinner } from './components/LoadingSpinner';
 import { Header } from './components/Layout/Header';
 import { TabNavigation } from './components/Navigation/TabNavigation';
 import { Dashboard } from './components/Dashboard/Dashboard';
@@ -9,7 +12,21 @@ import { useTransactions } from './hooks/useTransactions';
 import { exportToCSV } from './utils/helpers';
 import { Transaction } from './types';
 
-function App() {
+const AppContent: React.FC = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
+  if (!user) {
+    return <AuthPage />;
+  }
+
+  return <MainApp />;
+};
+
+const MainApp: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'transactions'>('dashboard');
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | undefined>();
@@ -171,6 +188,14 @@ function App() {
         )}
       </AnimatePresence>
     </div>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
